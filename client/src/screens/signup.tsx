@@ -1,12 +1,14 @@
 import { 
     StyleSheet, Text, TextInput, View, Image, 
     ImageBackground, TouchableOpacity, KeyboardAvoidingView, 
-    SafeAreaView} from 'react-native';
+    SafeAreaView,
+    ScrollView} from 'react-native';
 import React, { useEffect, useState } from 'react';
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 // import {  loginAccount } from '../services/signUpInfo'; 
 
-const LoginScreen = (props: any) => {
+const SignUpScreen = (props: any) => {
+  const [Name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
@@ -34,69 +36,66 @@ const LoginScreen = (props: any) => {
 
   return (
     <SafeAreaView style={styles.pageContainer}>
-        <View style={styles.pageContainer}>
+      <View style={styles.pageContainer}>
         <ImageBackground
-            source={require('../../assets/background3.0.png')}
-            resizeMode="cover"
-            style={styles.imageBackground}
+          source={require('../../assets/background3.0.png')}
+          resizeMode="cover"
+          style={styles.imageBackground}
         >
+          <ScrollView style={{height: '100%'}} contentContainerStyle={{}}>
             <View style={styles.overlayContainer}>
-            <View style={styles.loginContainer}>
-                <Text style={styles.title}>Sign In</Text>
+              <View style={styles.loginContainer}>
+                <Image
+                  style={styles.logo}
+                  source={require('../../assets/logo.png')}
+                />
+                <Text style={styles.title}>Sign Up</Text>
 
                 <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
+                  style={styles.input}
+                  placeholder="Name"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType='default'
+                />
+                <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
                 />
 
                 <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry={true}
-                value={password}
-                onChangeText={setPassword}
+                  style={styles.input}
+                  placeholder="Password"
+                  secureTextEntry={true}
+                  value={password}
+                  onChangeText={setPassword}
                 />
 
-                <TouchableOpacity>
-                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-                </TouchableOpacity>
 
                 <TouchableOpacity style={styles.getSignInButton} onPress={handleLogin}>
-                <Text style={styles.getStartedText}>Sign In</Text>
+                  <Text style={styles.getStartedText}>Sign In</Text>
                 </TouchableOpacity>
 
                 <View style={styles.signUpTextContainer}>
-                <Text>Don't have an account? </Text>
-                <TouchableOpacity onPress={() => props.navigation.navigate('SignUp')}>
-                    <Text style={styles.signUpText}>Sign Up</Text>
-                </TouchableOpacity>
+                  <Text>Already have an Account? </Text>
+                  <TouchableOpacity onPress={() => props.navigation.navigate('SignUp')}>
+                      <Text style={styles.signUpText}>Sign In</Text>
+                  </TouchableOpacity>
                 </View>
-            </View>
+              </View>
 
-            <View style={styles.socialButtonsContainer}>
-                <TouchableOpacity style={styles.getSocialButton}>
-                <Image style={styles.socialIcon} source={require('../../assets/google_media_social_icon.png')} />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.getSocialButton}>
-                <Image style={styles.socialIcon} source={require('../../assets/apple_icon.png')} />
-                </TouchableOpacity>
-
-                <TouchableOpacity style={styles.getSocialButton}>
-                <Image style={styles.socialIcon} source={require('../../assets/facebook_f_icon.png')} />
-                </TouchableOpacity>
             </View>
-            </View>
+          </ScrollView>
         </ImageBackground>
-        </View>
+      </View>
     </SafeAreaView>
   );
 };
 
-export default LoginScreen;
+export default SignUpScreen;
 
 const styles = StyleSheet.create({
   pageContainer: {
@@ -106,8 +105,15 @@ const styles = StyleSheet.create({
   imageBackground: {
     flex: 1,
     width: '100%',
+    height: '100%',
     justifyContent: 'center',
   },
+  logo: {
+    height: 100,
+    width: 200,
+    marginVertical: 20,
+    resizeMode: 'center'
+},
   overlayContainer: {
     flex: 1,
     // justifyContent: 'center',
@@ -133,7 +139,7 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginVertical: 20,
+    marginBottom: 20,
     textAlign: 'center',
   },
   input: {
