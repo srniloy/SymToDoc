@@ -40,7 +40,7 @@ export default function MainNavigator() {
     <NavigationContainer>
     <Stack.Navigator>
         {
-        context.user.email == ''? (
+        context.user.email != ''? (
         <>
             <Stack.Screen name='Welcome' component={WelcomeScreen} options={{ headerShown: false}}/>
             <Stack.Screen name='SignIn' component={SignInScreen}/>
