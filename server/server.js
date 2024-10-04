@@ -3,6 +3,7 @@ import bodyParser from 'body-parser';
 import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors'
+import authRoute from './routes/authRoute.js';
 
 
 
@@ -15,7 +16,7 @@ app.use(cors())
 
 
 configDotenv()
-const PORT = process.env.PORT || 5001;
+const PORT = process.env.PORT || 5005;
 const MONGO_URL = process.env.MONGO_URL;
 
 mongoose
@@ -26,8 +27,9 @@ mongoose
     })
     .catch(error =>  console.log(error))
 
-app.post("/api", (req, res) =>{
-    console.log(req.body)
+app.get("/api", (req, res) =>{
     res.json({"users": ["user1","user2","user3"]})
 })
+
+app.use('/auth', authRoute)
 

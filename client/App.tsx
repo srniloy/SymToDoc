@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { StatusBar } from 'expo-status-bar';
 import { StyleSheet, Text, View } from 'react-native';
 import LoginScreen from './src/screens/signin';
@@ -7,30 +7,25 @@ import { NavigationContainer } from '@react-navigation/native';
 import WelcomeScreen from './src/screens/welcome';
 import SignInScreen from './src/screens/signin';
 import SignUpScreen from './src/screens/signup';
+import DashboardScreen from './src/screens/dashboard';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { UserContext, UserContextProvider } from './src/contexts/UserContext';
+import DashboardStack from './src/navigation/DashboardStack';
+import AuthStack from './src/navigation/AuthStack';
+import MainNavigator from './src/navigation/Navigator';
 
 
-const Stack = createNativeStackNavigator();
-const isLoggedIn = false;
 
 export default function App() {
+  
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+
+
   return (
-    <NavigationContainer>
-      <Stack.Navigator>
-        {
-          isLoggedIn? (
-            <>
-            </>
-          ):
-          (
-            <>
-              <Stack.Screen name='Welcome' component={WelcomeScreen} options={{ headerShown: false }}/>
-              <Stack.Screen name='SignIn' component={SignInScreen}/>
-              <Stack.Screen name='SignUp' component={SignUpScreen}/>
-            </>
-          )
-        }
-      </Stack.Navigator>
-    </NavigationContainer>
+    <UserContextProvider>
+      <MainNavigator/>
+    </UserContextProvider>
   );
 }
 

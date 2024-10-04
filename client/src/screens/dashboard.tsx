@@ -1,5 +1,9 @@
 import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
+import { UserContext } from '../contexts/UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { Button } from 'react-native-paper';
+import { colors } from '../constants/colors';
 
 const data = [
     {
@@ -28,9 +32,29 @@ const data = [
     }
 ]
 
+type User = {
+  name: string,
+  email: string,
+  picture:string,
+  _id:string
+}
+
 const DashboardScreen = () => {
+  const context = useContext(UserContext)
   const [value, setValue] = useState('');
   const [selectedDiseases, setSelectedDiseases] = useState<any[]>([]);
+
+
+  const handleLogout = async()=>{
+    console.log("logout")
+    AsyncStorage.removeItem('user_info')
+    context.setUser({
+      name: "",
+      email: "",
+      picture: "",
+      _id: "",
+    })
+  }
 
   const changeHandle = (text: string) => {
     setValue(text);
@@ -54,64 +78,76 @@ const DashboardScreen = () => {
     // const possibleDisese = await getDisease(selectedDiseases)
     console.log("first")
   }
-
-  return (
-    <View style={styles.mainBox}>
-      <View style={styles.app}>
-        <Text style={styles.title}>DiseaseSearch</Text>
-        <View style={styles.searchContainer}>
-          <View style={styles.searchInner}>
-            <TextInput
-              style={styles.input}
-              value={value}
-              onChangeText={changeHandle}
-              placeholder='Search Diseases....'
-              placeholderTextColor="#888"
-            />
+  if(context.user._id != ''){
+    return (
+      <View style={styles.mainBox}>
+        <View style={styles.app}>
+          <Text style={styles.title}>DiseaseSearch</Text>
+          <Text style={styles.title}>{context.user?.name}</Text>
+          <View style={styles.searchContainer}>
+            <View style={styles.searchInner}>
+              <TextInput
+                style={styles.input}
+                value={value}
+                onChangeText={changeHandle}
+                placeholder='Search Diseases....'
+                placeholderTextColor="#888"
+              />
+            </View>
+  
+            <ScrollView style={styles.dropdown}>
+              {
+                data
+                  .filter(item => {
+                    const searchTerm = value.toLocaleLowerCase();
+                    const diseaseName = item.Disease.toLocaleLowerCase();
+                    return searchTerm && diseaseName.startsWith(searchTerm) && diseaseName !== searchTerm;
+                  })
+                  .slice(0, 5)
+                  .map(item => (
+                    <TouchableOpacity
+                      key={item.ID}
+                      onPress={() => onSearch(item.Disease)}
+                      style={styles.dropdownRow}
+                    >
+                      <Text style={styles.dropdownText}>{item.Disease}</Text>
+                    </TouchableOpacity>
+                  ))
+              }
+            </ScrollView>
           </View>
-
-          <ScrollView style={styles.dropdown}>
+  
+          {/* Render the selected diseases as tags */}
+          <View style={styles.tagsContainer}>
             {
-              data
-                .filter(item => {
-                  const searchTerm = value.toLocaleLowerCase();
-                  const diseaseName = item.Disease.toLocaleLowerCase();
-                  return searchTerm && diseaseName.startsWith(searchTerm) && diseaseName !== searchTerm;
-                })
-                .slice(0, 5)
-                .map(item => (
-                  <TouchableOpacity
-                    key={item.ID}
-                    onPress={() => onSearch(item.Disease)}
-                    style={styles.dropdownRow}
-                  >
-                    <Text style={styles.dropdownText}>{item.Disease}</Text>
+              selectedDiseases.map(disease => (
+                <View key={disease.ID} style={styles.tag}>
+                  <Text style={styles.tagText}>{disease.Disease}</Text>
+                  <TouchableOpacity onPress={() => removeDisease(disease.Disease)} style={styles.removeButton}>
+                    <Text style={styles.removeButtonText}>✕</Text>
                   </TouchableOpacity>
-                ))
+                </View>
+              ))
             }
-          </ScrollView>
-        </View>
+          </View>
+  
+          <TouchableOpacity onPress={findDisease} style={styles.searchButtonBorder}>
+              <Text style={styles.searchButtonText}>Search Disease</Text>
+          </TouchableOpacity>
 
-        {/* Render the selected diseases as tags */}
-        <View style={styles.tagsContainer}>
-          {
-            selectedDiseases.map(disease => (
-              <View key={disease.ID} style={styles.tag}>
-                <Text style={styles.tagText}>{disease.Disease}</Text>
-                <TouchableOpacity onPress={() => removeDisease(disease.Disease)} style={styles.removeButton}>
-                  <Text style={styles.removeButtonText}>✕</Text>
-                </TouchableOpacity>
-              </View>
-            ))
-          }
+          <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={handleLogout}>
+                    Logout
+          </Button>
         </View>
-
-        <TouchableOpacity onPress={findDisease} style={styles.searchButtonBorder}>
-            <Text style={styles.searchButtonText}>Search Disease</Text>
-        </TouchableOpacity>
       </View>
-    </View>
-  );
+    );
+  }else{
+    return(
+      <View style={{height: '100%',display: 'flex', justifyContent: 'center', alignItems:'center'}}>
+        <Text style={{fontSize: 26}}>Invalid Request</Text>
+      </View>
+    )
+  }
 };
 
 export default DashboardScreen;
@@ -202,5 +238,10 @@ const styles = StyleSheet.create({
     color: 'white',
     fontWeight: 'bold',
     fontSize: 17
-  }
+  },
+  buttonStyle:{
+    backgroundColor: colors.secondary,
+    marginTop: 20,
+    width: 150,
+}
 });
