@@ -2,10 +2,11 @@ import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 
 import React, { useContext, useEffect, useState } from 'react'
 import { UserContext } from '../contexts/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { Button } from 'react-native-paper';
+import { ActivityIndicator, Button, List, MD2Colors } from 'react-native-paper';
 import { colors } from '../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
+import { FindDisease, GetSymptoms } from '../services/disease-find-service';
 
 const data = [
     {
@@ -75,9 +76,23 @@ const DiseaseFind = () => {
       _id: "sfjq30949fei93r4j"
     }
   }
+  const [incorrect, setIncorrect] = useState({
+    message: '',
+    visibility: false,
+  })
   const [value, setValue] = useState('');
-  const [selectedDiseases, setSelectedDiseases] = useState<any[]>([]);
-
+  const [isLoading, setIsLoading] = useState(false);
+  const [symptoms, setSymptoms] = useState<any[]>([]);
+  const [selectedSymptoms, setSelectedSymptoms] = useState<any[]>([]);
+  const [possibleDisease, setPossibleDisease] = useState<any[]>(symptoms);
+  
+  useEffect(() => {
+    const getSymptoms = async ()=>{
+      const res:any = await GetSymptoms();
+      setSymptoms(res.data.symptoms)
+    }
+    getSymptoms()
+  }, []);
 
   const handleLogout = async()=>{
     console.log("logout")
@@ -95,27 +110,44 @@ const DiseaseFind = () => {
   };
 
   const onSearch = (searchTerm: string) => {
-    if (!selectedDiseases.some(disease => disease.Disease === searchTerm)) {
-      const disease = data.find(item => item.Disease === searchTerm);
+    if (!selectedSymptoms.some(disease => disease.disease === searchTerm)) {
+      const disease = symptoms.find(item => item.symptom === searchTerm);
       if (disease) {
-        setSelectedDiseases(prev => [...prev, disease]);
+        setSelectedSymptoms(prev => [...prev, disease]);
       }
     }
     setValue('');
   };
 
   const removeDisease = (diseaseToRemove: string) => {
-    setSelectedDiseases(prev => prev.filter(disease => disease.Disease !== diseaseToRemove));
+    setSelectedSymptoms(prev => prev.filter(disease => disease.disease !== diseaseToRemove));
   };
 
   const findDisease = async () => {
-    // const possibleDisese = await getDisease(selectedDiseases)
-    console.log("first")
+    if(selectedSymptoms.length < 3){
+      setIncorrect({message: 'Please select atleast 3 symptoms', visibility: true})
+      return
+    }else{
+      setIncorrect({message: '', visibility: false})
+    }
+    setIsLoading(true)
+    const res:any = await FindDisease(selectedSymptoms)
+    setPossibleDisease(res.data.diseases)
+    setIsLoading(false)
   }
+
+  const toggleAccordion = (index: number) => {
+    setPossibleDisease(prev => 
+      prev.map((disease, i) => (i === index ? {...disease, isOpen: !disease.isOpen} : disease))
+    );
+  };
+
+
   if(context.user._id != ''){
     return (
       <SafeAreaView style={styles.safeViewContainer}>
         <ScrollView style={{height: '100%'}}>
+
           <View style={styles.mainBox}>
             <Text style={styles.title}>DiseaseFinder</Text>
             <View style={styles.searchContainer}>
@@ -132,19 +164,18 @@ const DiseaseFind = () => {
               <View style={styles.dropdown}>
                 <ScrollView>
                   {
-                    data
-                      .filter(item => {
+                    symptoms?.filter(item => {
                         const searchTerm = value.toLocaleLowerCase();
-                        const diseaseName = item.Disease.toLocaleLowerCase();
+                        const diseaseName = item.symptom.toLocaleLowerCase();
                         return searchTerm && diseaseName.startsWith(searchTerm) && diseaseName !== searchTerm;
                       })
                       .map(item => (
                         <TouchableOpacity
-                          key={item.ID}
-                          onPress={() => onSearch(item.Disease)}
+                          key={item.id}
+                          onPress={() => onSearch(item.symptom)}
                           style={styles.dropdownRow}
                         >
-                          <Text style={styles.dropdownText}>{item.Disease}</Text>
+                          <Text style={styles.dropdownText}>{item.symptom}</Text>
                         </TouchableOpacity>
                       ))
                   }
@@ -154,26 +185,57 @@ const DiseaseFind = () => {
             </View>
     
             <View style={{paddingHorizontal: 10}}>
-              {selectedDiseases.length>0 ? (<Text style={{marginBottom:10}}>Selected Symptoms:</Text>): (<></>)}
+              {selectedSymptoms.length>0 ? (<Text style={{marginBottom:10}}>Selected Symptoms:</Text>): (<></>)}
               <View style={styles.tagsContainer}>
                 {
-                  selectedDiseases.map(disease => (
-                    <View key={disease.ID} style={styles.tag}>
-                      <Text style={styles.tagText}>{disease.Disease}</Text>
-                      <TouchableOpacity onPress={() => removeDisease(disease.Disease)} style={styles.removeButton}>
+                  selectedSymptoms.map(symptom => (
+                    <View key={symptom.id} style={styles.tag}>
+                      <Text style={styles.tagText}>{symptom.symptom}</Text>
+                      <TouchableOpacity onPress={() => removeDisease(symptom.symptom)} style={styles.removeButton}>
                         <Text style={styles.removeButtonText}>✕</Text>
                       </TouchableOpacity>
                     </View>
                   ))
                 }
               </View>
+              <Text style={incorrect.visibility? styles.incorrectText: {display:'none'}}>{incorrect.message}</Text>
               <TouchableOpacity onPress={findDisease} style={styles.searchButtonBorder}>
                   <Text style={styles.searchButtonText}>Search Disease</Text>
               </TouchableOpacity>
 
-              <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={handleLogout}>
-                        Logout
-              </Button>
+                {
+                  isLoading?<ActivityIndicator size='large' animating={true} color={MD2Colors.cyan700} style={{marginTop:50}} /> : ''
+                }
+
+                {/* <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={handleLogout}>
+                          Logout
+                </Button> */}
+
+                <ScrollView style={styles.accordion}>
+                {
+                  possibleDisease?.map((disease, index) => (
+                    <View key={disease.id} style={styles.accordionItem}>
+                        <TouchableOpacity
+                          onPress={() => toggleAccordion(index)}
+                          style={styles.accordionTitle}
+                        >
+                          <Text style={styles.accordionText}>{disease.disease}</Text>
+                          <Text>{disease.isOpen ? '-' : '+'}</Text>
+                        </TouchableOpacity>
+                        {
+                          disease.isOpen && (
+                            <View style={styles.accordionContent}>
+                              <Text style={styles.accordionTextLine}>{disease.description}</Text>
+                            </View>
+                          )
+                        }
+                    </View>
+                  ))
+                }
+                </ScrollView>
+
+
+
             </View>
     
           </View>
@@ -296,5 +358,44 @@ const styles = StyleSheet.create({
     backgroundColor: colors.secondary,
     marginTop: 20,
     width: 150,
+},
+accordion: {
+  marginTop: 30,
+},
+accordionItem: {
+  marginBottom: 10,
+  backgroundColor: 'white',
+  borderRadius: 10
+},
+accordionTitle: {
+  flexDirection: 'row',
+  justifyContent: 'space-between',
+  paddingVertical: 8,
+  borderColor: '#ccc',
+  marginLeft: 13,
+  marginRight: 13,
+  marginTop: 8,
+  marginBottom: 8,
+},
+accordionText: {
+  fontSize: 16,
+  fontWeight: 'bold'
+},
+accordionContent: {
+  marginLeft: 13,
+  marginRight: 13,
+  marginBottom: 13
+},
+accordionTextLine: {
+  color: 'grey',
+  lineHeight: 20
+},
+incorrectText: {
+  color:"#e33", 
+  textAlign:'left', 
+  width: '100%', 
+  marginLeft:10,
+  marginBottom: 5,
+  display: 'flex'
 }
 });

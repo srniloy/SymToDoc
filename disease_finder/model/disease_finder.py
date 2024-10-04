@@ -4,6 +4,7 @@ class DiseaseFinder:
     
 
     def find(symptoms):
+        disease_details = pd.read_csv("./datasets/symptom_Description.csv")
         symp_code = pd.read_csv("./datasets/symptom_weight_code.csv")
         symp_code = symp_code.drop('Unnamed: 0', axis='columns')
         train = pd.read_csv("./datasets/coded_dataset.csv")
@@ -46,7 +47,10 @@ class DiseaseFinder:
         indexList = list(matchCount.keys())
         weightList = list(matchCount.values())
         for i in range(len(matchCount)):
-            result.append(dict({'disease': Y[indexList[i]], 'weight': weightList[i]}))
+            for d in range(0, disease_details.shape[0]):
+                if disease_details.loc[d].Disease == Y[indexList[i]]:
+                    result.append(dict({'id': i, 'disease': Y[indexList[i]], 'description': disease_details.loc[d].Description, 'weight': weightList[i]}))
+        
         return result
 
 

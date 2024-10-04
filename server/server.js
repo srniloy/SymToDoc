@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import express from 'express';
 import cors from 'cors'
 import authRoute from './routes/authRoute.js';
+import diseaseFinderRoute from './routes/diseaseFinderRoute.js';
 
 
 
@@ -32,4 +33,5 @@ app.get("/api", (req, res) =>{
 })
 
 app.use('/auth', authRoute)
+app.use('/find-disease', diseaseFinderRoute)
 

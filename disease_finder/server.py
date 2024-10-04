@@ -29,7 +29,7 @@ def get_symptoms():
     try:
         symptoms_list = SymptomsList.get()
         serializable_symptoms = json.loads(json.dumps(symptoms_list, default=convert_to_serializable))
-        return jsonify(serializable_symptoms)
+        return jsonify({"message": "Successfully Fetched Data", "symptoms":serializable_symptoms})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
