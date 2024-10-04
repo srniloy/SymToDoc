@@ -1,87 +1,150 @@
 import { 
     StyleSheet, Text, TextInput, View, Image, 
     ImageBackground, TouchableOpacity, KeyboardAvoidingView, 
-    SafeAreaView} from 'react-native';
-import React, { useEffect, useState } from 'react';
-// import { TouchableOpacity } from 'react-native-gesture-handler';
-// import {  loginAccount } from '../services/signUpInfo'; 
+    SafeAreaView,
+    ScrollView} from 'react-native';
+import React, { useContext, useEffect, useState } from 'react';
+import { UserContext } from '../contexts/UserContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { ActivityIndicator, MD2Colors, Snackbar } from 'react-native-paper';
+
+import { SignInService } from '../services/auth-service';
 
 const SignInScreen = (props: any) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const context = useContext(UserContext);
 
-//   useEffect(() => {
-//     fetch('http://localhost/')
-//       .then(async (res) => {
-//         if (res.ok) {
-//           console.log(await res.json());
-//         }
-//       })
-//       .catch((error) => console.error('Fetch error:', error)); // Added error handling
-//   }, []);
+  const [incorrect, setIncorrect] = useState({
+    message: '',
+    visibility: false,
+  })
 
-  const handleLogin = async () => {
-    console.log('Attempting to login with:', { email, password });
+  const [isLoading, setIsLoading] = useState(false)
+  const [snackbar, setSnackbar] = useState({
+    message: '',
+    visibility: false
+  })
 
-    // const userInfo = { email, password };
 
- 
-    //   const info = await loginAccount(userInfo);
-    //   console.log('Login successful:', info);
-    //   props.navigation.navigate('Home');
-     
+  const ValueChecking = ()=>{
+    if(!(email.includes(".") && email.includes("@"))){
+      if(email == ""){
+        setIncorrect({
+          message: "please fill all the required fields",
+          visibility: true
+        })
+      }else{
+        setIncorrect({
+          message: "please enter the email with right format",
+          visibility: true
+        })
+      }
+    }
+    else if(password == ""){
+      setIncorrect({
+        message: "please fill all the required fields",
+        visibility: true
+      })
+    }
+    else{
+      setIncorrect({
+        message: "",
+        visibility: false
+      })
+      return true
+    }
+    return false
+  }
+
+
+  const handleSignIn = async () => {
+    if(!ValueChecking()){
+      return
+    }
+    setIsLoading(true)
+    const {status, data} = await SignInService({email, password});
+    if(status == 'success'){
+      const result = await AsyncStorage.getItem('user_info')
+      const {name, email, picture, _id} = JSON.parse(result || '')
+      context.setUser({name, email, picture, _id})
+    }else(
+      console.log(data)
+    )
+    setSnackbar({
+      message: data.message,
+      visibility: true
+    })
+    setIsLoading(false)
   };
 
   return (
     <SafeAreaView style={styles.pageContainer}>
         <View style={styles.pageContainer}>
-        <ImageBackground
+          <ImageBackground
             source={require('../../assets/background3.0.png')}
             resizeMode="cover"
             style={styles.imageBackground}
-        >
-            <View style={styles.overlayContainer}>
-            <View style={styles.loginContainer}>
-                <Image
-                    style={styles.logo}
-                    source={require('../../assets/logo.png')}
-                />
-                <Text style={styles.title}>Sign In</Text>
+          >
+            <ScrollView>
+              <View style={styles.overlayContainer}>
+                <View style={styles.loginContainer}>
+                  <Image
+                      style={styles.logo}
+                      source={require('../../assets/logo.png')}
+                  />
+                  <Text style={styles.title}>Sign In</Text>
+                  <Text style={styles.title}>{context.user.name}</Text>
 
-                <TextInput
-                style={styles.input}
-                placeholder="Email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                />
+                  <TextInput
+                  style={styles.input}
+                  placeholder="Email"
+                  value={email}
+                  onChangeText={setEmail}
+                  keyboardType="email-address"
+                  />
 
-                <TextInput
-                style={styles.input}
-                placeholder="Password"
-                secureTextEntry={true}
-                value={password}
-                onChangeText={setPassword}
-                />
+                  <TextInput
+                  style={styles.input}
+                  placeholder="Password"
+                  secureTextEntry={true}
+                  value={password}
+                  onChangeText={setPassword}
+                  />
+                  <Text style={incorrect.visibility? styles.incorrectText: {display:'none'}}>{incorrect.message}</Text>
+                  {/* <TouchableOpacity>
+                  <Text style={styles.forgotPasswordText}>Forgot password?</Text>
+                  </TouchableOpacity> */}
 
-                <TouchableOpacity>
-                <Text style={styles.forgotPasswordText}>Forgot password?</Text>
-                </TouchableOpacity>
+                  <TouchableOpacity style={styles.getSignInButton} onPress={handleSignIn}>
+                  {
+                    isLoading?(
+                      <ActivityIndicator animating={true} color={MD2Colors.cyan700} />
+                    ):(
+                      <Text style={styles.getStartedText}>Sign Up</Text>
+                    )
+                  }
+                  </TouchableOpacity>
 
-                <TouchableOpacity style={styles.getSignInButton} onPress={handleLogin}>
-                <Text style={styles.getStartedText}>Sign In</Text>
-                </TouchableOpacity>
-
-                <View style={styles.signUpTextContainer}>
-                <Text>Don't have an account? </Text>
-                <TouchableOpacity onPress={() => props.navigation.navigate('SignUp')}>
-                    <Text style={styles.signUpText}>Sign Up</Text>
-                </TouchableOpacity>
+                  <View style={styles.signUpTextContainer}>
+                    <Text>Don't have an account? </Text>
+                    <TouchableOpacity onPress={() => props.navigation.navigate('SignUp')}>
+                        <Text style={styles.signUpText}>Sign Up</Text>
+                    </TouchableOpacity>
+                  </View>
                 </View>
-            </View>
-
-            </View>
-        </ImageBackground>
+              </View>
+            </ScrollView>
+            <Snackbar
+              visible={snackbar.visibility}
+              onDismiss={()=> setSnackbar(ex=>({
+                ...ex,
+                visibility: false
+              }))}
+              >
+              {snackbar.message}
+            </Snackbar>
+          </ImageBackground>
         </View>
     </SafeAreaView>
   );
@@ -119,13 +182,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     height: 'auto',
     width: 'auto',
-    padding: 20,
     borderRadius: 10,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.2,
     shadowRadius: 3.84,
     elevation: 5,
+    paddingHorizontal: 20,
+    paddingVertical:30
   },
   title: {
     fontSize: 24,
@@ -184,4 +248,11 @@ const styles = StyleSheet.create({
     height: 24,
     width: 24,
   },
+  incorrectText: {
+    color:"#e33", 
+    textAlign:'left', 
+    width: '100%', 
+    marginLeft:25,
+    display: 'flex'
+  }
 });

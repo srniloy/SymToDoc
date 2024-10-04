@@ -1,14 +1,17 @@
 import { Image, ScrollView, StyleSheet, Text, View } from 'react-native'
-import React from 'react'
+import React, { useContext } from 'react'
 import { StatusBar } from 'expo-status-bar'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Button, TextInput } from 'react-native-paper'
 import { colors } from '../constants/colors'
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { UserContext } from '../contexts/UserContext'
 
 
 const WelcomeScreen = ({ navigation }: any) => {
+  const context = useContext(UserContext)
+
   return (
     <SafeAreaView style={{backgroundColor: colors.bg, height: '100%', flex: 1}}>
         <ScrollView contentContainerStyle={{width: '100%', display:'flex', justifyContent: 'center', flex: 1}}>
@@ -33,9 +36,10 @@ const WelcomeScreen = ({ navigation }: any) => {
                     <Text style={{color:'#777', fontSize: 12}}>Continue With</Text>
                     <View style={{height:1, width: 100, backgroundColor:"#999"}}></View>
                 </View>
-                <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={() => navigation.navigate('SignIn')}>
+                <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={() => {navigation.navigate('SignIn')}}>
                     Sign In
                 </Button>
+
             </View>
         </ScrollView>
         <StatusBar  backgroundColor="#161622" style="light"/>
