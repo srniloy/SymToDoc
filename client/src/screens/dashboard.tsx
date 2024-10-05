@@ -1,14 +1,15 @@
 import * as React from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
 import DiseaseFind from './disease-find';
+import DiseaseSave from './disease-save';
 
-const MusicRoute = () => <DiseaseFind/>
+const Disease_Find = () => <DiseaseFind/>
 
-const AlbumsRoute = () => <Text>Albums</Text>;
+const Disease_Save = () => <DiseaseSave/>
 
-const RecentsRoute = () => <Text>Recents</Text>;
+const RecentsRoute = () => <Text>Doctor search</Text>;
 
-const NotificationsRoute = () => <Text>Notifications</Text>;
+const NotificationsRoute = () => <Text>Profile</Text>;
 
 const DashboardScreen = () => {
   const [index, setIndex] = React.useState(0);
@@ -20,9 +21,9 @@ const DashboardScreen = () => {
   ]);
 
   const renderScene = BottomNavigation.SceneMap({
-    disease_find: MusicRoute,
-    doctor_find: AlbumsRoute,
-    saved: RecentsRoute,
+    disease_find: Disease_Find,
+    doctor_find: RecentsRoute,
+    saved: Disease_Save,
     profile: NotificationsRoute,
   });
 
