@@ -7,7 +7,7 @@ import { NavigationContainer } from '@react-navigation/native';
 import WelcomeScreen from './src/screens/welcome';
 import SignInScreen from './src/screens/signin';
 import SignUpScreen from './src/screens/signup';
-import DashboardScreen from './src/screens/dashboard';
+import DashboardScreen from './src/screens/disease-find';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext, UserContextProvider } from './src/contexts/UserContext';
 import DashboardStack from './src/navigation/DashboardStack';
