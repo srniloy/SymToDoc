@@ -42,3 +42,39 @@ export const FindDisease = async (selectedSymptoms:any[])=>{
     return response
     
 }
+
+export const SaveDisease = async (disease_info: any)=>{
+    
+    let response = {status: "success", data:{message: '', diseases: {}}}
+    await axios.post(`${BASE_URL}/find-disease/save`,disease_info)
+    .then( async res=>{
+        if(res.status){
+            response = {status: "success", data: res.data}
+            console.log(res.data)
+        }
+    }).catch(error=>{
+        console.log(error)
+        // console.log(error.response.data)
+        response = {status: "error", data: error.response.data}
+    })
+    
+    return response
+    
+}
+
+export const GetSavedDiseases = async (data: any)=>{
+    let response = {status: "success", data:{message: ''}}
+    await axios.post(`${BASE_URL}/find-disease/get-diseases`,data)
+    .then( async res=>{
+        if(res.status){
+            response = {status: "success", data: JSON.parse(res.data)}
+        }
+    }).catch(error=>{
+        console.log(error)
+        // console.log(error.response.data)
+        response = {status: "error", data: error.response.data}
+    })
+    
+    return response
+    
+}

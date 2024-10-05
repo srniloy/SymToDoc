@@ -6,7 +6,7 @@ import { ActivityIndicator, Button, List, MD2Colors } from 'react-native-paper';
 import { colors } from '../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { FindDisease, GetSymptoms } from '../services/disease-find-service';
+import { FindDisease, GetSymptoms, SaveDisease } from '../services/disease-find-service';
 
 const data = [
     {
@@ -67,15 +67,7 @@ type User = {
 }
 
 const DiseaseFind = () => {
-  // const context = useContext(UserContext)
-  const context = {
-    user: {
-      name: 'Shahriar Rahman',
-      email: 'srn@srn.com',
-      picture: '',
-      _id: "sfjq30949fei93r4j"
-    }
-  }
+  const context = useContext(UserContext)
   const [incorrect, setIncorrect] = useState({
     message: '',
     visibility: false,
@@ -96,13 +88,13 @@ const DiseaseFind = () => {
 
   const handleLogout = async()=>{
     console.log("logout")
-    // AsyncStorage.removeItem('user_info')
-    // context.setUser({
-    //   name: "",
-    //   email: "",
-    //   picture: "",
-    //   _id: "",
-    // })
+    AsyncStorage.removeItem('user_info')
+    context.setUser({
+      name: "",
+      email: "",
+      picture: "",
+      _id: "",
+    })
   }
 
   const changeHandle = (text: string) => {
@@ -141,6 +133,11 @@ const DiseaseFind = () => {
       prev.map((disease, i) => (i === index ? {...disease, isOpen: !disease.isOpen} : disease))
     );
   };
+
+
+  const saveDisease = async (disease:any)=>{
+    const res: any = await SaveDisease({disease, user_id: context.user._id})
+  }
 
 
   if(context.user._id != ''){
@@ -207,9 +204,7 @@ const DiseaseFind = () => {
                   isLoading?<ActivityIndicator size='large' animating={true} color={MD2Colors.cyan700} style={{marginTop:50}} /> : ''
                 }
 
-                {/* <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={handleLogout}>
-                          Logout
-                </Button> */}
+
 
                 <ScrollView style={styles.accordion}>
                 {
@@ -226,6 +221,9 @@ const DiseaseFind = () => {
                           disease.isOpen && (
                             <View style={styles.accordionContent}>
                               <Text style={styles.accordionTextLine}>{disease.description}</Text>
+                              <Button icon="content-save" style={styles.buttonStyle} mode="contained" onPress={()=>saveDisease(disease)}>
+                                Save
+                            </Button>
                             </View>
                           )
                         }
@@ -237,7 +235,9 @@ const DiseaseFind = () => {
 
 
             </View>
-    
+                    <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={handleLogout}>
+                          Logout
+                </Button>
           </View>
         </ScrollView>
         <StatusBar  backgroundColor="#161622" style="light"/>

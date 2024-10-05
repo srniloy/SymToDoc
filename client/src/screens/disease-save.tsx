@@ -6,19 +6,21 @@ import { ActivityIndicator, Button, List, MD2Colors } from 'react-native-paper';
 import { colors } from '../constants/colors';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { FindDisease, GetSymptoms } from '../services/disease-find-service';
+import { FindDisease, GetSavedDiseases, GetSymptoms } from '../services/disease-find-service';
 
 
 
 const DiseaseSave = () => {
-  const context = {
-    user: {
-      name: 'Shahriar Rahman',
-      email: 'srn@srn.com',
-      picture: '',
-      _id: "sfjq30949fei93r4j"
+  const context = useContext(UserContext)
+  const [diseases, setDiseases] = useState<any[]>([]);
+  useEffect(() => {
+    const getSymptoms = async ()=>{
+      const res:any = await GetSavedDiseases({user_id: context.user._id});
+      console.log(res)
+      setDiseases(res.data)
     }
-  }
+    getSymptoms()
+  }, []);
 
   if(context.user._id != ''){
     return (
@@ -28,8 +30,15 @@ const DiseaseSave = () => {
           <View style={styles.mainBox}>
             <Text style={styles.title}>Saved Diseases</Text>
             
-            
-            
+
+            {
+              diseases.map(disease =>(
+                <View style={{backgroundColor: '#fcfcfc', marginBottom: 5, padding: 10, borderRadius: 5}}>
+                  <Text style={{fontSize: 22, fontWeight: 700}}>{disease.disease.disease}</Text>
+                  <Text>{disease.disease.description}</Text>
+                </View>
+              ))
+            }
     
           </View>
         </ScrollView>
