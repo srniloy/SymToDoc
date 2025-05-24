@@ -1,6 +1,6 @@
 # SymToDoc
 
-**SymToDoc** is a React Native mobile application designed to empower users with fast, accessible, and intelligent health insights. By simply selecting their symptoms, users receive a list of potential diseases ranked by probability, along with recommended medical specializations to consult—bridging the gap between uncertainty and informed action.
+**SymToDoc** is a React Native mobile application designed to empower users with fast, accessible, and intelligent health insights. By simply selecting their symptoms, users receive a list of potential diseases ranked by probability, along with recommended medical specializations to consult, bridging the gap between uncertainty and informed action.
 
 ---
 
@@ -24,7 +24,7 @@ It’s built with the goal of aiding early detection, reducing misdirection, and
   Receive diseases ranked by probability, helping users understand which conditions are most likely based on their symptoms.
 
 - **👨‍⚕️ Specialist Guidance**  
-  Know exactly which type of doctor to see for each predicted condition—no more guessing or unnecessary referrals.
+  Know exactly which type of doctor to see for each predicted condition, no more guessing or unnecessary referrals.
 
 - **📱 Seamless User Experience**  
   With an intuitive interface and responsive design, SymToDoc offers a smooth journey from sign-up to diagnosis insights.
@@ -35,10 +35,6 @@ It’s built with the goal of aiding early detection, reducing misdirection, and
 - **🌍 Healthcare Accessibility**  
   Especially helpful in regions with limited access to immediate medical advice, enabling quicker awareness and proactive decisions.
 
----
-
-Make smarter health decisions with **SymToDoc** — Your symptoms, decoded.
-
 
 ---
 
@@ -46,9 +42,8 @@ Make smarter health decisions with **SymToDoc** — Your symptoms, decoded.
 
 SymToDoc is built using a modular and scalable architecture, integrating multiple technologies across the frontend, backend, and machine learning layers.
 
----
 
-## 🧩 Architecture Overview
+### 🧩 Architecture Overview
 ![Architecture Overview](architecture.png "Architecture Overview")
 ---
 
