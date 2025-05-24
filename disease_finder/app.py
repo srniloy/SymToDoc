@@ -33,6 +33,14 @@ def get_symptoms():
         return jsonify({"message": "Successfully Fetched Data", "symptoms":serializable_symptoms})
     except Exception as e:
         return jsonify({"error": str(e)}), 500
+    
+@app.route("/", methods=["GET"])
+def say_hello():
+    try:
+        
+        return jsonify({"message": "Hello, This server is live!"})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__=="__main__":
     app.run(debug=True)
