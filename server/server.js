@@ -5,7 +5,6 @@ import express from 'express';
 import cors from 'cors'
 import authRoute from './routes/authRoute.js';
 import diseaseFinderRoute from './routes/diseaseFinderRoute.js';
-import axios from "axios"
 
 
 
@@ -36,7 +35,6 @@ app.get("/api", (req, res) =>{
 })
 
 app.get("/", async (req, res) =>{
-    await axios.get(`${process.env.DISEASE_FINDER_URL}`)
     res.send("Welcome, This server is live!")
 })
 app.use('/auth', authRoute)
