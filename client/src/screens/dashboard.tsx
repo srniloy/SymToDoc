@@ -1,10 +1,9 @@
 import * as React from 'react';
 import { BottomNavigation, Text } from 'react-native-paper';
-import DiseaseFind from './disease-find';
-import SymptomInputScreen from './test';
 import ProfileScreen from './profile';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext } from '../contexts/UserContext';
+import SymptomInputScreen from './disease-find';
 
 
 

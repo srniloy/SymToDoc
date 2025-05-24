@@ -7,15 +7,20 @@ import { NavigationContainer } from '@react-navigation/native';
 import WelcomeScreen from './src/screens/welcome';
 import SignInScreen from './src/screens/signin';
 import SignUpScreen from './src/screens/signup';
-import DashboardScreen from './src/screens/disease-find';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { UserContext, UserContextProvider } from './src/contexts/UserContext';
 import MainNavigator from './src/navigation/Navigator';
+import { init_service } from './src/services/disease-find-service';
 
 
 
 export default function App() {
-  
+  useEffect(() => {
+        const Init = async ()=>{
+          const res:any = await init_service();
+        }
+        Init()
+      }, []);
   return (
     <UserContextProvider>
       <MainNavigator/>

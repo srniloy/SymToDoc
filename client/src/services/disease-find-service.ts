@@ -18,6 +18,21 @@ export const GetSymptoms = async ()=>{
     
 }
 
+export const init_service = async ()=>{
+
+    await axios.get(`${BASE_URL}`)
+    .then( async res=>{
+        if(res.status){
+            console.log(res.status);
+        }
+    }).catch(error=>{
+        console.log(error)
+        console.log(error.response.data)
+    })
+    
+    
+}
+
 export const FindDisease = async (selectedSymptoms:any[])=>{
     let symptoms = ''
     selectedSymptoms.forEach(sym=>{

@@ -1,401 +1,522 @@
-import { ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native'
-import React, { useContext, useEffect, useState } from 'react'
-import { UserContext } from '../contexts/UserContext';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { ActivityIndicator, Button, List, MD2Colors } from 'react-native-paper';
-import { colors } from '../constants/colors';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import { StatusBar } from 'expo-status-bar';
-import { FindDisease, GetSymptoms, SaveDisease } from '../services/disease-find-service';
+import React, { useState, useEffect } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  ScrollView,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+  StyleSheet,
+  Dimensions,
+  KeyboardAvoidingView,
+  Platform
+} from 'react-native';
+import { FindDisease, GetSymptoms } from '../services/disease-find-service';
 
-const data = [
-    {
-        "ID": 1,
-        "Disease": "Acute Flaccid Myelitis (AFM)",
-        "Discription": "As of January 1, 2020, IDPH is reporting the following number of patients under investigation during the given year and the number of cases that are confirmed, probable, and not cases according to the Centers for Disease Control and Prevention (CDC) after review of the case..."
+const { width, height } = Dimensions.get('window');
+const isSmallScreen = height <= 667;
 
-    },
-    {
-        "ID": 2,
-        "Disease": "Asthma",
-        "Discription": "What is asthma? Asthma is a condition that affects the airways. It makes it hard to breathe because the airways become swollen, produce too much mucus and the muscles around the airways tighten. Asthma can range from mild to severe and can be life threatening. It is recognized that in some families, inherited factors play a role in an individual's risk for asth"
-
-    },
-    {
-      "ID": 3,
-      "Disease": "Asthma",
-      "Discription": "What is asthma? Asthma is a condition that affects the airways. It makes it hard to breathe because the airways become swollen, produce too much mucus and the muscles around the airways tighten. Asthma can range from mild to severe and can be life threatening. It is recognized that in some families, inherited factors play a role in an individual's risk for asth"
-
-    },
-    {
-      "ID": 4,
-      "Disease": "Asthma",
-      "Discription": "What is asthma? Asthma is a condition that affects the airways. It makes it hard to breathe because the airways become swollen, produce too much mucus and the muscles around the airways tighten. Asthma can range from mild to severe and can be life threatening. It is recognized that in some families, inherited factors play a role in an individual's risk for asth"
-
-    },
-    {
-      "ID": 5,
-      "Disease": "Asthma",
-      "Discription": "What is asthma? Asthma is a condition that affects the airways. It makes it hard to breathe because the airways become swollen, produce too much mucus and the muscles around the airways tighten. Asthma can range from mild to severe and can be life threatening. It is recognized that in some families, inherited factors play a role in an individual's risk for asth"
-
-    },
-    {
-      "ID": 6,
-      "Disease": "Asthma",
-      "Discription": "What is asthma? Asthma is a condition that affects the airways. It makes it hard to breathe because the airways become swollen, produce too much mucus and the muscles around the airways tighten. Asthma can range from mild to severe and can be life threatening. It is recognized that in some families, inherited factors play a role in an individual's risk for asth"
-
-    },
-    {
-      "ID": 7,
-      "Disease": "Asthma",
-      "Discription": "What is asthma? Asthma is a condition that affects the airways. It makes it hard to breathe because the airways become swollen, produce too much mucus and the muscles around the airways tighten. Asthma can range from mild to severe and can be life threatening. It is recognized that in some families, inherited factors play a role in an individual's risk for asth"
-
-    },
-    {
-      "ID": 8,
-      "Disease": "Asthma",
-      "Discription": "What is asthma? Asthma is a condition that affects the airways. It makes it hard to breathe because the airways become swollen, produce too much mucus and the muscles around the airways tighten. Asthma can range from mild to severe and can be life threatening. It is recognized that in some families, inherited factors play a role in an individual's risk for asth"
-
-    },
-]
-
-type User = {
-  name: string,
-  email: string,
-  picture:string,
-  _id:string
-}
-
-const DiseaseFind = () => {
-  const context = useContext(UserContext)
-  const [incorrect, setIncorrect] = useState({
-    message: '',
-    visibility: false,
-  })
-  const [value, setValue] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [symptoms, setSymptoms] = useState<any[]>([]);
-  const [selectedSymptoms, setSelectedSymptoms] = useState<any[]>([]);
-  const [possibleDisease, setPossibleDisease] = useState<any[]>(symptoms);
-  
-  useEffect(() => {
-    const getSymptoms = async ()=>{
-      const res:any = await GetSymptoms();
-      setSymptoms(res.data.symptoms)
-    }
-    getSymptoms()
-  }, []);
-
-  const handleLogout = async()=>{
-    console.log("logout")
-    AsyncStorage.removeItem('user_info')
-    context.setUser({
-      name: "",
-      email: "",
-      picture: "",
-      _id: "",
-    })
-  }
-
-  const changeHandle = (text: string) => {
-    setValue(text);
-  };
-
-  const onSearch = (searchTerm: string) => {
-    if (!selectedSymptoms.some(disease => disease.disease === searchTerm)) {
-      const disease = symptoms.find(item => item.symptom === searchTerm);
-      if (disease) {
-        setSelectedSymptoms(prev => [...prev, disease]);
-      }
-    }
-    setValue('');
-  };
-
-  const removeDisease = (diseaseToRemove: string) => {
-    setSelectedSymptoms(prev => prev.filter(disease => disease.disease !== diseaseToRemove));
-  };
-
-  const findDisease = async () => {
-    if(selectedSymptoms.length < 3){
-      setIncorrect({message: 'Please select atleast 3 symptoms', visibility: true})
-      return
-    }else{
-      setIncorrect({message: '', visibility: false})
-    }
-    setIsLoading(true)
-    const res:any = await FindDisease(selectedSymptoms)
-    setPossibleDisease(res.data.diseases)
-    setIsLoading(false)
-  }
-
-  const toggleAccordion = (index: number) => {
-    setPossibleDisease(prev => 
-      prev.map((disease, i) => (i === index ? {...disease, isOpen: !disease.isOpen} : disease))
-    );
-  };
-
-
-  const saveDisease = async (disease:any)=>{
-    const res: any = await SaveDisease({disease, user_id: context.user._id})
-  }
-
-
-  if(context.user._id != ''){
-    return (
-      <SafeAreaView style={styles.safeViewContainer}>
-        <ScrollView style={{height: '100%'}}>
-
-          <View style={styles.mainBox}>
-            <Text style={styles.title}>DiseaseFinder</Text>
-            <View style={styles.searchContainer}>
-              <View style={styles.searchInner}>
-                <TextInput
-                  style={styles.input}
-                  value={value}
-                  onChangeText={changeHandle}
-                  placeholder='Search Symptoms....'
-                  placeholderTextColor="#888"
-                />
-              </View>
-    
-              <View style={styles.dropdown}>
-                <ScrollView>
-                  {
-                    symptoms?.filter(item => {
-                        const searchTerm = value.toLocaleLowerCase();
-                        const diseaseName = item.symptom.toLocaleLowerCase();
-                        return searchTerm && diseaseName.startsWith(searchTerm) && diseaseName !== searchTerm;
-                      })
-                      .map(item => (
-                        <TouchableOpacity
-                          key={item.id}
-                          onPress={() => onSearch(item.symptom)}
-                          style={styles.dropdownRow}
-                        >
-                          <Text style={styles.dropdownText}>{item.symptom}</Text>
-                        </TouchableOpacity>
-                      ))
-                  }
-                </ScrollView>
-
-              </View>
-            </View>
-    
-            <View style={{paddingHorizontal: 10}}>
-              {selectedSymptoms.length>0 ? (<Text style={{marginBottom:10}}>Selected Symptoms:</Text>): (<></>)}
-              <View style={styles.tagsContainer}>
-                {
-                  selectedSymptoms.map(symptom => (
-                    <View key={symptom.id} style={styles.tag}>
-                      <Text style={styles.tagText}>{symptom.symptom}</Text>
-                      <TouchableOpacity onPress={() => removeDisease(symptom.symptom)} style={styles.removeButton}>
-                        <Text style={styles.removeButtonText}>✕</Text>
-                      </TouchableOpacity>
-                    </View>
-                  ))
-                }
-              </View>
-              <Text style={incorrect.visibility? styles.incorrectText: {display:'none'}}>{incorrect.message}</Text>
-              <TouchableOpacity onPress={findDisease} style={styles.searchButtonBorder}>
-                  <Text style={styles.searchButtonText}>Search Disease</Text>
-              </TouchableOpacity>
-
-                {
-                  isLoading?<ActivityIndicator size='large' animating={true} color={MD2Colors.cyan700} style={{marginTop:50}} /> : ''
-                }
-
-
-
-                <ScrollView style={styles.accordion}>
-                {
-                  possibleDisease?.map((disease, index) => (
-                    <View key={disease.id} style={styles.accordionItem}>
-                        <TouchableOpacity
-                          onPress={() => toggleAccordion(index)}
-                          style={styles.accordionTitle}
-                        >
-                          <Text style={styles.accordionText}>{disease.disease}</Text>
-                          <Text>{disease.isOpen ? '-' : '+'}</Text>
-                        </TouchableOpacity>
-                        {
-                          disease.isOpen && (
-                            <View style={styles.accordionContent}>
-                              <Text style={styles.accordionTextLine}>{disease.description}</Text>
-                              <Button icon="content-save" style={styles.buttonStyle} mode="contained" onPress={()=>saveDisease(disease)}>
-                                Save
-                            </Button>
-                            </View>
-                          )
-                        }
-                    </View>
-                  ))
-                }
-                </ScrollView>
-
-
-
-            </View>
-                    <Button icon="login" style={styles.buttonStyle} mode="contained" onPress={handleLogout}>
-                          Logout
-                </Button>
-          </View>
-        </ScrollView>
-        <StatusBar  backgroundColor="#161622" style="light"/>
-      </SafeAreaView>
-    );
-  }else{
-    return(
-      <View style={{height: '100%',display: 'flex', justifyContent: 'center', alignItems:'center'}}>
-        <Text style={{fontSize: 26}}>Invalid Request</Text>
-      </View>
-    )
-  }
+// Type definitions
+type Disease = {
+  id: number;
+  disease: string;
+  description: string;
+  weight: number;
+  specialization: string;
 };
 
-export default DiseaseFind;
+type DiseaseResultCardProps = {
+  disease: string;
+  description: string;
+  weight: number;
+  specialization: string
+};
+
+// const ALL_SYMPTOMS: string[] = [
+//   "Fever", "Headache", "Fatigue", "Nausea", "Vomiting",
+//   "Abdominal pain", "Yellow skin", "Dark urine", "Loss of appetite",
+//   "Muscle pain", "Rash", "Itching", "Constipation", "Diarrhea",
+//   "Chills", "Cough", "Sore throat", "Runny nose"
+// ];
+
+const DiseaseResultCard: React.FC<DiseaseResultCardProps> = ({ disease, description, weight, specialization }) => {
+  return (
+    <View style={styles.resultCard}>
+      <View style={styles.resultCardHeader}>
+        <Text style={styles.diseaseName}>{disease}</Text>
+        <View style={[styles.severityBadge, { backgroundColor: getSeverityColor(weight) }]}>
+          <Text style={styles.severityText}>{weight}/5 Probability</Text>
+        </View>
+      </View>
+      <Text style={styles.diseaseDescription}>{description}</Text>
+      <Text style={styles.diseaseSpecialization}>{"Visit to a "} <Text style={{fontWeight:'bold'}}>{specialization}</Text> {" to get treatment for this."}</Text>
+    </View>
+  );
+};
+
+const getSeverityColor = (weight: number): string => {
+  if (weight >= 4) return '#fee2e2'; // red-100
+  if (weight >= 3) return '#ffedd5'; // orange-100
+  return '#ecfccb'; // lime-100
+};
+
+const SymptomInputScreen: React.FC = () => {
+
+  const [symptoms, setSymptoms] = useState<any[]>([]);
+  const [selectedSymptoms, setSelectedSymptoms] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filteredSymptoms, setFilteredSymptoms] = useState<string[]>([]);
+  const [results, setResults] = useState<Disease[] | null>(null);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [showResults, setShowResults] = useState<boolean>(false);
+  
+
+  useEffect(() => {
+      const getSymptoms = async ()=>{
+        const res:any = await GetSymptoms();
+        const ALL_SYMPTOMS = res.data.symptoms
+        const processedSymptoms = ALL_SYMPTOMS.map((item:any) => {return item.symptom});
+        const uniqueSymptoms = Array.from(new Set(processedSymptoms)) as string[];
+        // setSymptoms(s)
+        setFilteredSymptoms(uniqueSymptoms)
+      }
+      getSymptoms()
+    }, []);
+
+  useEffect(() => {
+    if (searchQuery === '') {
+      setFilteredSymptoms(symptoms);
+    } else {
+      setFilteredSymptoms(
+        symptoms.filter(symptom =>
+          symptom.toLowerCase().includes(searchQuery.toLowerCase())
+        )
+      );
+    }
+  }, [searchQuery]);
+
+  const toggleSymptom = (symptom: string): void => {
+    if (selectedSymptoms.includes(symptom)) {
+      setSelectedSymptoms(selectedSymptoms.filter(s => s !== symptom));
+    } else {
+      setSelectedSymptoms([...selectedSymptoms, symptom]);
+    }
+  };
+
+  const removeSymptom = (symptom: string): void => {
+    setSelectedSymptoms(selectedSymptoms.filter(s => s !== symptom));
+  };
+
+  const submitSymptoms = (): void => {
+    if (selectedSymptoms.length === 0) return;
+    console.log(selectedSymptoms);
+    setIsLoading(true);
+    setTimeout( async () => {
+      const res:any = await FindDisease(selectedSymptoms)
+      // const mockResults: Disease[] = [
+      //   {"id": 0, "disease": "Jaundice", "description": "Yellow staining of the skin and sclerae (the whites of the eyes) by abnormally high blood levels of the bile pigment bilirubin.", "weight": 5},
+      //   {"id": 1, "disease": "Hepatitis B", "description": "Hepatitis B is an infection of your liver. It can cause scarring of the organ, liver failure, and cancer.", "weight": 4},
+      // ];
+      setResults(res.data.diseases)
+      // setResults(mockResults);
+      setIsLoading(false);
+      setShowResults(true);
+    }, 1500);
+  };
+
+  const resetForm = (): void => {
+    setSelectedSymptoms([]);
+    setResults(null);
+    setShowResults(false);
+  };
+
+  return (
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      style={styles.container}
+    >
+      <View style={styles.container}>
+        {!showResults ? (
+          <>
+            <Text style={styles.title}>What symptoms are you experiencing?</Text>
+            
+            <Text style={styles.subtitle}>Select all that apply</Text>
+            
+            {/* Search input */}
+            <View style={styles.searchContainer}>
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search symptoms..."
+                placeholderTextColor="#94a3b8"
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+            </View>
+            
+            {/* Selected symptoms chips */}
+            {selectedSymptoms.length > 0 && (
+              <View style={styles.selectedContainer}>
+                <Text style={styles.selectedTitle}>Selected:</Text>
+                <ScrollView 
+                  horizontal 
+                  showsHorizontalScrollIndicator={false}
+                  contentContainerStyle={styles.chipsContainer}
+                >
+                  {selectedSymptoms.map(symptom => (
+                    <TouchableOpacity 
+                      key={symptom} 
+                      style={styles.symptomChip}
+                      onPress={() => removeSymptom(symptom)}
+                    >
+                      <Text style={styles.symptomChipText}>{symptom.split('_')
+                        .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')}</Text>
+                      <Text style={styles.symptomChipRemove}>×</Text>
+                    </TouchableOpacity>
+                  ))}
+                </ScrollView>
+              </View>
+            )}
+
+            <View style={{display:'flex', flexDirection:'column', height: '100%'}}>
+              {/* Symptoms list */}
+              <View style={styles.symptomsListContainer}>
+                <FlatList
+                  data={filteredSymptoms}
+                  keyExtractor={(item) => item}
+                  scrollEnabled={true}
+                  renderItem={({ item }) => (
+                    <TouchableOpacity
+                      onPress={() => toggleSymptom(item)}
+                      key={item}
+                      style={[
+                        styles.symptomItem,
+                        selectedSymptoms.includes(item) && styles.selectedSymptomItem
+                      ]}
+                    >
+                      <Text style={styles.symptonText}>{item.split('_')
+                        .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')}</Text>
+                      {selectedSymptoms.includes(item) && (
+                        <View style={styles.selectedIndicator}>
+                          <Text style={styles.selectedIndicatorText}>✓</Text>
+                        </View>
+                      )}
+                    </TouchableOpacity>
+                  )}
+                  ListEmptyComponent={
+                    <View style={styles.emptyListContainer}>
+                      <Text style={styles.emptyListText}>No symptoms found matching "{searchQuery}"</Text>
+                    </View>
+                  }
+                  contentContainerStyle={styles.symptomsListContent}
+                />
+              </View>
+              
+              {/* Submit button */}
+              <TouchableOpacity
+                onPress={submitSymptoms}
+                disabled={selectedSymptoms.length === 0 || isLoading}
+                style={[
+                  styles.submitButton,
+                  selectedSymptoms.length === 0 && styles.disabledButton
+                ]}
+              >
+                {isLoading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text style={styles.submitButtonText}>
+                    Analyze Symptoms {selectedSymptoms.length > 0 && `(${selectedSymptoms.length})`}
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
+            
+          </>
+        ) : (
+          <>
+            <View style={styles.resultsHeader}>
+              <Text style={styles.resultsTitle}>Possible Conditions</Text>
+              <TouchableOpacity onPress={resetForm} style={styles.startOverButton}>
+                <Text style={styles.startOverButtonText}>Start Over</Text>
+              </TouchableOpacity>
+            </View>
+            
+            <Text style={styles.resultsSubtitle}>
+              Based on: {selectedSymptoms.map((item:any) => {return item.split('_')
+                        .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .join(' ')}).join(', ')}
+            </Text>
+            
+            <View style={styles.resultsContainer}>
+  <FlatList
+    data={results}
+    keyExtractor={(item) => item.id.toString()}
+    renderItem={({ item }) => (
+      <DiseaseResultCard
+        disease={item.disease}
+        description={item.description}
+        weight={5-item.id}
+        specialization={item.specialization}
+      />
+    )}
+    ListEmptyComponent={
+      <View style={styles.emptyResultsContainer}>
+        <Text style={styles.emptyResultsText}>No matching conditions found</Text>
+      </View>
+    }
+    contentContainerStyle={styles.resultsContentContainer}
+  />
+</View>
+            
+          </>
+        )}
+      </View>
+    </KeyboardAvoidingView>
+  );
+};
 
 const styles = StyleSheet.create({
-  safeViewContainer: {
-    backgroundColor: colors.bg,
-    height: "100%", 
-    
+  resultsContainer: {
+    marginBottom: 16,
+    paddingBottom: 16
   },
-
-  mainBox: {
-    width: '100%',
-    height: '100%',
-    paddingVertical: 30,
-    paddingHorizontal: 20,
-    // backgroundColor: '#ccc'
+  resultsContentContainer: {
+    paddingBottom: 20,
+    flexGrow: 1, // Important for proper scrolling
   },
-  title: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    marginBottom: 40,
+  emptyResultsContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 400, // Match container height
+  },
+  emptyResultsText: {
+    color: '#94a3b8',
     textAlign: 'center',
   },
-  searchContainer: {
-    marginBottom: 20,
+  
+  symptomsListContent: {
+    paddingVertical: 8,
   },
-  searchInner: {
+  symptomItem: {
+    paddingVertical: 14,
+    paddingHorizontal: 16,
     flexDirection: 'row',
+    justifyContent: 'space-between',
     alignItems: 'center',
   },
-  input: {
+  container: {
     flex: 1,
-    borderColor: '#ccc',
-    paddingTop: 10,
-    paddingBottom: 10,
-    paddingLeft: 20,
-    borderRadius: 40,
-    backgroundColor: 'white'
+    backgroundColor: '#ffffff',
+    paddingHorizontal: 16,
+    paddingTop: 20,
+    paddingBottom: 40,
   },
-  dropdown: {
-    marginTop: 10,
-    backgroundColor: 'white',
-    borderRadius: 19,
-    height: 'auto',
-    maxHeight: 200,
-    paddingHorizontal: 15
-  },
-  dropdownRow: {
-    paddingTop: 10,
-    paddingBottom: 10,
-    borderBottomColor: '#f5f5f5',
-    borderBottomWidth: 1,
-    marginHorizontal: 5
-  },
-  dropdownText: {
-    fontSize: 16,
-  },
-  // Styles for the selected disease tags
-  tagsContainer: {
+  chipsContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
-    marginBottom: 20,
-
+    marginBottom: 12,
   },
-  tag: {
+  symptomsListContainer: {
+    height: 200,
+    marginBottom: 16,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    borderRadius: 8,
+    backgroundColor: '#ffffff',
+    overflow: 'hidden',
+  },
+  emptyListContainer: {
+    height: 400,
+    justifyContent: 'center',
+    alignItems: 'center',
+    padding: 20,
+  },
+  scrollContainer: {
+    flexGrow: 1,
+    paddingHorizontal: 16,
+    paddingTop: 40,
+    paddingBottom: 40,
+  },
+  title: {
+    fontSize: isSmallScreen ? 22 : 24,
+    fontWeight: '700',
+    color: '#1e293b',
+    marginBottom: 8,
+    lineHeight: 28,
+  },
+  subtitle: {
+    fontSize: isSmallScreen ? 14 : 16,
+    color: '#64748b',
+    marginBottom: 24,
+  },
+  searchContainer: {
+    marginBottom: 16,
+  },
+  searchInput: {
+    backgroundColor: '#f8fafc',
+    borderRadius: 10,
+    paddingHorizontal: 16,
+    paddingVertical: isSmallScreen ? 12 : 14,
+    fontSize: isSmallScreen ? 15 : 16,
+    color: '#334155',
+    borderWidth: 1,
+    borderColor: '#e2e8f0',
+  },
+  selectedContainer: {
+    marginBottom: 12,
+  },
+  selectedTitle: {
+    fontSize: isSmallScreen ? 14 : 15,
+    color: '#64748b',
+    marginBottom: 8,
+  },
+  symptomChip: {
+    backgroundColor: '#e0f2fe',
+    borderRadius: 16,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginRight: 8,
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    backgroundColor: '#e0e0e0',
-    borderRadius: 20,
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    marginRight: 10,
-    marginBottom: 10,
   },
-  tagText: {
-    fontSize: 14,
-    marginRight: 8,
+  symptomChipText: {
+    color: '#0369a1',
+    fontSize: isSmallScreen ? 13 : 14,
   },
-  removeButton: {
-    backgroundColor: '#ff6b6b',
-    borderRadius: 50,
-    paddingHorizontal: 5,
-    paddingVertical: 3,
-  },
-  removeButtonText: {
-    color: '#fff',
-    fontSize: 14,
-    marginTop: -2
-  },
-
-  searchButtonBorder: {
-    backgroundColor: colors.primary,
-    paddingBottom: 10,
-    paddingTop: 10,
-    borderRadius: 40,
-    alignItems: 'center'
-  },
-  searchButtonText: {
-    color: 'white',
+  symptomChipRemove: {
+    marginLeft: 4,
+    color: '#0284c7',
     fontWeight: 'bold',
-    fontSize: 17
+    fontSize: isSmallScreen ? 14 : 16,
   },
-  buttonStyle:{
-    backgroundColor: colors.secondary,
-    marginTop: 20,
-    width: 150,
-},
-accordion: {
-  marginTop: 30,
-},
-accordionItem: {
-  marginBottom: 10,
-  backgroundColor: 'white',
-  borderRadius: 10
-},
-accordionTitle: {
-  flexDirection: 'row',
-  justifyContent: 'space-between',
-  paddingVertical: 8,
-  borderColor: '#ccc',
-  marginLeft: 13,
-  marginRight: 13,
-  marginTop: 8,
-  marginBottom: 8,
-},
-accordionText: {
-  fontSize: 16,
-  fontWeight: 'bold'
-},
-accordionContent: {
-  marginLeft: 13,
-  marginRight: 13,
-  marginBottom: 13
-},
-accordionTextLine: {
-  color: 'grey',
-  lineHeight: 20
-},
-incorrectText: {
-  color:"#e33", 
-  textAlign:'left', 
-  width: '100%', 
-  marginLeft:10,
-  marginBottom: 5,
-  display: 'flex'
-}
+  selectedSymptomItem: {
+    backgroundColor: '#f0f9ff',
+    borderColor: '#bae6fd',
+  },
+  symptonText: {
+    color: '#1e293b',
+    fontSize: isSmallScreen ? 15 : 16,
+    flex: 1,
+  },
+  
+  selectedIndicator: {
+    backgroundColor: '#38bdf8',
+    width: 22,
+    height: 22,
+    borderRadius: 11,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginLeft: 8,
+  },
+  selectedIndicatorText: {
+    color: 'white',
+    fontSize: 12,
+    fontWeight: 'bold',
+  },
+  emptyListText: {
+    color: '#94a3b8',
+    textAlign: 'center',
+    paddingVertical: 20,
+    fontSize: isSmallScreen ? 14 : 15,
+  },
+  submitButton: {
+    backgroundColor: '#2563eb',
+    borderRadius: 10,
+    paddingVertical: isSmallScreen ? 14 : 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 8,
+    shadowColor: '#2563eb',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  disabledButton: {
+    backgroundColor: '#cbd5e1',
+    shadowColor: 'transparent',
+  },
+  submitButtonText: {
+    color: 'white',
+    fontSize: isSmallScreen ? 16 : 17,
+    fontWeight: '600',
+  },
+  resultsHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  resultsTitle: {
+    fontSize: isSmallScreen ? 22 : 24,
+    fontWeight: '700',
+    color: '#1e293b',
+  },
+  startOverButton: {
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+  },
+  startOverButtonText: {
+    color: '#2563eb',
+    fontSize: isSmallScreen ? 15 : 16,
+    fontWeight: '500',
+  },
+  resultsSubtitle: {
+    fontSize: isSmallScreen ? 14 : 15,
+    color: '#64748b',
+    marginBottom: 20,
+    lineHeight: 20,
+  },
+  resultCard: {
+    backgroundColor: 'white',
+    borderRadius: 10,
+    padding: 16,
+    marginBottom: 12,
+    borderWidth: 1,
+    borderColor: '#f1f5f9',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 1,
+  },
+  resultCardHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 12,
+  },
+  diseaseName: {
+    fontSize: isSmallScreen ? 17 : 18,
+    fontWeight: '600',
+    color: '#1e293b',
+    flex: 1,
+    marginRight: 12,
+  },
+  severityBadge: {
+    borderRadius: 12,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+  },
+  severityText: {
+    fontSize: isSmallScreen ? 12 : 13,
+    fontWeight: '500',
+    color: '#1e293b',
+  },
+  diseaseDescription: {
+    color: '#475569',
+    fontSize: isSmallScreen ? 14 : 15,
+    lineHeight: 20,
+  },
+  diseaseSpecialization:{
+    color: '#475569',
+    fontSize: isSmallScreen ? 14 : 15,
+    lineHeight: 20,
+    marginTop: 10
+  },
 });
+
+export default SymptomInputScreen;

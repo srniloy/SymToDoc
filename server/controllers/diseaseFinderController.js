@@ -6,6 +6,7 @@ import SaveDiseaseModel from "../models/saveDiseaseModel.js";
 
 
 configDotenv()
+
 export const GetSymptoms = async (req, res) => {
     try{
         await axios.get(`${process.env.DISEASE_FINDER_URL}/get_symptoms`,)
