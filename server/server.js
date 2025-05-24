@@ -21,7 +21,9 @@ const PORT = process.env.PORT || 5005;
 const MONGO_URL = process.env.MONGO_URL;
 
 mongoose
-    .connect(MONGO_URL)
+    .connect(MONGO_URL, {
+        dbName: 'sym-to-doc'
+    })
     .then(()=>{
         console.log("MongoDB Connected")
         app.listen(PORT, ()=> console.log(`Server started on port ${PORT}`))
