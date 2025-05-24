@@ -13,6 +13,8 @@ import {
   Platform
 } from 'react-native';
 import { FindDisease, GetSymptoms } from '../services/disease-find-service';
+import { MD2Colors } from 'react-native-paper';
+import { StatusBar } from 'expo-status-bar';
 
 const { width, height } = Dimensions.get('window');
 const isSmallScreen = height <= 667;
@@ -78,7 +80,7 @@ const SymptomInputScreen: React.FC = () => {
         const ALL_SYMPTOMS = res.data.symptoms
         const processedSymptoms = ALL_SYMPTOMS.map((item:any) => {return item.symptom});
         const uniqueSymptoms = Array.from(new Set(processedSymptoms)) as string[];
-        // setSymptoms(s)
+        setSymptoms(uniqueSymptoms)
         setFilteredSymptoms(uniqueSymptoms)
       }
       getSymptoms()
@@ -108,21 +110,16 @@ const SymptomInputScreen: React.FC = () => {
     setSelectedSymptoms(selectedSymptoms.filter(s => s !== symptom));
   };
 
-  const submitSymptoms = (): void => {
+  const submitSymptoms = async () => {
     if (selectedSymptoms.length === 0) return;
     console.log(selectedSymptoms);
     setIsLoading(true);
-    setTimeout( async () => {
-      const res:any = await FindDisease(selectedSymptoms)
-      // const mockResults: Disease[] = [
-      //   {"id": 0, "disease": "Jaundice", "description": "Yellow staining of the skin and sclerae (the whites of the eyes) by abnormally high blood levels of the bile pigment bilirubin.", "weight": 5},
-      //   {"id": 1, "disease": "Hepatitis B", "description": "Hepatitis B is an infection of your liver. It can cause scarring of the organ, liver failure, and cancer.", "weight": 4},
-      // ];
-      setResults(res.data.diseases)
-      // setResults(mockResults);
-      setIsLoading(false);
-      setShowResults(true);
-    }, 1500);
+    const res: any = await FindDisease(selectedSymptoms)
+    console.log(res.data.diseases);
+    setResults(res.data.diseases)
+    setIsLoading(false);
+    setShowResults(true);
+    
   };
 
   const resetForm = (): void => {
@@ -182,36 +179,41 @@ const SymptomInputScreen: React.FC = () => {
             <View style={{display:'flex', flexDirection:'column', height: '100%'}}>
               {/* Symptoms list */}
               <View style={styles.symptomsListContainer}>
-                <FlatList
-                  data={filteredSymptoms}
-                  keyExtractor={(item) => item}
-                  scrollEnabled={true}
-                  renderItem={({ item }) => (
-                    <TouchableOpacity
-                      onPress={() => toggleSymptom(item)}
-                      key={item}
-                      style={[
-                        styles.symptomItem,
-                        selectedSymptoms.includes(item) && styles.selectedSymptomItem
-                      ]}
-                    >
-                      <Text style={styles.symptonText}>{item.split('_')
-                        .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(' ')}</Text>
-                      {selectedSymptoms.includes(item) && (
-                        <View style={styles.selectedIndicator}>
-                          <Text style={styles.selectedIndicatorText}>✓</Text>
-                        </View>
-                      )}
-                    </TouchableOpacity>
-                  )}
-                  ListEmptyComponent={
-                    <View style={styles.emptyListContainer}>
-                      <Text style={styles.emptyListText}>No symptoms found matching "{searchQuery}"</Text>
-                    </View>
-                  }
-                  contentContainerStyle={styles.symptomsListContent}
-                />
+                {
+                  symptoms.length > 0? 
+                  <FlatList
+                    data={filteredSymptoms}
+                    keyExtractor={(item) => item}
+                    scrollEnabled={true}
+                    renderItem={({ item }) => (
+                      <TouchableOpacity
+                        onPress={() => toggleSymptom(item)}
+                        key={item}
+                        style={[
+                          styles.symptomItem,
+                          selectedSymptoms.includes(item) && styles.selectedSymptomItem
+                        ]}
+                      >
+                        <Text style={styles.symptonText}>{item.split('_')
+                          .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
+                          .join(' ')}</Text>
+                        {selectedSymptoms.includes(item) && (
+                          <View style={styles.selectedIndicator}>
+                            <Text style={styles.selectedIndicatorText}>✓</Text>
+                          </View>
+                        )}
+                      </TouchableOpacity>
+                    )}
+                    ListEmptyComponent={
+                      <View style={styles.emptyListContainer}>
+                        <Text style={styles.emptyListText}>No symptoms found matching "{searchQuery}"</Text>
+                      </View>
+                    }
+                    contentContainerStyle={styles.symptomsListContent}
+                  />:
+                  <ActivityIndicator animating={true} color={MD2Colors.cyan700} />
+
+                }
               </View>
               
               {/* Submit button */}
@@ -273,6 +275,7 @@ const SymptomInputScreen: React.FC = () => {
           </>
         )}
       </View>
+      <StatusBar  backgroundColor="#161622" style="light"/>
     </KeyboardAvoidingView>
   );
 };
@@ -320,7 +323,7 @@ const styles = StyleSheet.create({
     marginBottom: 12,
   },
   symptomsListContainer: {
-    height: 200,
+    height: 300,
     marginBottom: 16,
     borderWidth: 1,
     borderColor: '#f1f5f9',
@@ -329,7 +332,6 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   emptyListContainer: {
-    height: 400,
     justifyContent: 'center',
     alignItems: 'center',
     padding: 20,

@@ -2,6 +2,7 @@ import React, { useContext } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView } from 'react-native';
 import { colors } from '../constants/colors';
 import { UserContext } from '../contexts/UserContext';
+import { StatusBar } from 'expo-status-bar';
 
 interface UserProfileProps {
     name: string;
@@ -38,6 +39,7 @@ const ProfileScreen: React.FC<UserProfileProps> = ({ name, email, onLogout }) =>
                     <Text style={styles.logoutButtonText}>Log Out</Text>
                 </TouchableOpacity>
             </View>
+            <StatusBar  backgroundColor="#161622" style="light"/>
         </SafeAreaView>
     );
 };

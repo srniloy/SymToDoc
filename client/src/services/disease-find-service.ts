@@ -1,5 +1,5 @@
 import axios from "axios";
-import { BASE_URL } from "../constants/Values";
+import { BASE_URL, ML_URL } from "../constants/Values";
 
 export const GetSymptoms = async ()=>{
     let response = {status: "success", data:{message: ''}}
@@ -19,6 +19,8 @@ export const GetSymptoms = async ()=>{
 }
 
 export const init_service = async ()=>{
+    
+    await axios.get(`${ML_URL}`)
 
     await axios.get(`${BASE_URL}`)
     .then( async res=>{
@@ -33,13 +35,13 @@ export const init_service = async ()=>{
     
 }
 
-export const FindDisease = async (selectedSymptoms:any[])=>{
+export const FindDisease = async (selectedSymptoms:string[])=>{
     let symptoms = ''
     selectedSymptoms.forEach(sym=>{
         if(symptoms != ''){
-            symptoms += '+'+sym.symptom
+            symptoms += '+'+sym
         }else{
-            symptoms += sym.symptom
+            symptoms += sym
         }
     })
     let response = {status: "success", data:{message: '', diseases: {}}}
