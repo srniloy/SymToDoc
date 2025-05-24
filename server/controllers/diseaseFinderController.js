@@ -8,7 +8,7 @@ import SaveDiseaseModel from "../models/saveDiseaseModel.js";
 configDotenv()
 export const GetSymptoms = async (req, res) => {
     try{
-        await axios.get(`${"http://localhost:5000"}/get_symptoms`,)
+        await axios.get(`${process.env.DISEASE_FINDER_URL}/get_symptoms`,)
         .then( async response=>{
             if(response.status){
                 res.status(200).json(JSON.stringify(response.data))
@@ -28,7 +28,7 @@ export const GetSymptoms = async (req, res) => {
 
 export const GetPossibleDisease = async (req, res) => {
     try{
-        await axios.post(`${"http://localhost:5000"}/disease_finder`, req.body)
+        await axios.post(`${process.env.DISEASE_FINDER_URL}/disease_finder`, req.body)
         .then( async response=>{
             if(response.status){
                 res.status(200).json(JSON.stringify(response.data))

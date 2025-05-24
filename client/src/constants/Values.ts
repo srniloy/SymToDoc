@@ -1,3 +1,3 @@
 
 
-export const BASE_URL="http://192.168.0.103:5005"
+export const BASE_URL="https://symtodoc.onrender.com"
