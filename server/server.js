@@ -5,6 +5,7 @@ import express from 'express';
 import cors from 'cors'
 import authRoute from './routes/authRoute.js';
 import diseaseFinderRoute from './routes/diseaseFinderRoute.js';
+import axios from "axios"
 
 
 
