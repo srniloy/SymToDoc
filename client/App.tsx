@@ -13,6 +13,7 @@ import MainNavigator from './src/navigation/Navigator';
 import { init_service } from './src/services/disease-find-service';
 
 
+
 export default function App() {
   useEffect(() => {
         const Init = async ()=>{
