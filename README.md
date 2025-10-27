@@ -165,7 +165,7 @@ You can try **SymToDoc** by downloading and installing the app
 
 ### 🔗 Download from Expo
 
-> [Click here to open the app in Expo](https://expo.dev/accounts/srniloy/projects/sym-to-doc/builds/2c379a23-cb33-4d2b-bd73-15af1e841814)  
+> [Click here to open the app in Expo](https://expo.dev/accounts/srniloy/projects/sym-to-doc/builds/18b83dcf-f994-456b-a773-dd3e98a027ff)  
 > *(go to Build artifact section and click the install button and the apk of this app will start downloading!)*
 
 1. Install the **SymToDoc** app
