@@ -1,8 +1,9 @@
-import { 
-    StyleSheet, Text, TextInput, View, Image, 
-    ImageBackground, TouchableOpacity, KeyboardAvoidingView, 
-    SafeAreaView,
-    ScrollView} from 'react-native';
+import {
+  StyleSheet, Text, TextInput, View, Image,
+  ImageBackground, TouchableOpacity, KeyboardAvoidingView,
+  SafeAreaView,
+  ScrollView
+} from 'react-native';
 import React, { useContext, useEffect, useState } from 'react';
 import { UserContext } from '../contexts/UserContext';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -27,27 +28,27 @@ const SignInScreen = (props: any) => {
   })
 
 
-  const ValueChecking = ()=>{
-    if(!(email.includes(".") && email.includes("@"))){
-      if(email == ""){
+  const ValueChecking = () => {
+    if (!(email.includes(".") && email.includes("@"))) {
+      if (email == "") {
         setIncorrect({
           message: "please fill all the required fields",
           visibility: true
         })
-      }else{
+      } else {
         setIncorrect({
           message: "please enter the email with right format",
           visibility: true
         })
       }
     }
-    else if(password == ""){
+    else if (password == "") {
       setIncorrect({
         message: "please fill all the required fields",
         visibility: true
       })
     }
-    else{
+    else {
       setIncorrect({
         message: "",
         visibility: false
@@ -59,16 +60,16 @@ const SignInScreen = (props: any) => {
 
 
   const handleSignIn = async () => {
-    if(!ValueChecking()){
+    if (!ValueChecking()) {
       return
     }
     setIsLoading(true)
-    const {status, data} = await SignInService({email, password});
-    if(status == 'success'){
+    const { status, data } = await SignInService({ email, password });
+    if (status == 'success') {
       const result = await AsyncStorage.getItem('user_info')
-      const {name, email, picture, _id} = JSON.parse(result || '')
-      context.setUser({name, email, picture, _id})
-    }else(
+      const { name, email, picture, _id } = JSON.parse(result || '')
+      context.setUser({ name, email, picture, _id })
+    } else (
       console.log(data)
     )
     setSnackbar({
@@ -80,72 +81,72 @@ const SignInScreen = (props: any) => {
 
   return (
     <SafeAreaView style={styles.pageContainer}>
-        <View style={styles.pageContainer}>
-          <ImageBackground
-            source={require('../../assets/background3.0.png')}
-            resizeMode="cover"
-            style={styles.imageBackground}
-          >
-            <ScrollView>
-              <View style={styles.overlayContainer}>
-                <View style={styles.loginContainer}>
-                  <Image
-                      style={styles.logo}
-                      source={require('../../assets/logo.png')}
-                  />
-                  <Text style={styles.title}>Sign In</Text>
-                  <Text style={styles.title}>{context.user.name}</Text>
+      <View style={styles.pageContainer}>
+        <ImageBackground
+          source={require('../../assets/background3.0.png')}
+          resizeMode="cover"
+          style={styles.imageBackground}
+        >
+          <ScrollView>
+            <View style={styles.overlayContainer}>
+              <View style={styles.loginContainer}>
+                <Image
+                  style={styles.logo}
+                  source={require('../../assets/logo.png')}
+                />
+                <Text style={styles.title}>Sign In</Text>
+                <Text style={styles.title}>{context.user.name}</Text>
 
-                  <TextInput
+                <TextInput
                   style={styles.input}
                   placeholder="Email"
                   value={email}
                   onChangeText={setEmail}
                   keyboardType="email-address"
-                  />
+                />
 
-                  <TextInput
+                <TextInput
                   style={styles.input}
                   placeholder="Password"
                   secureTextEntry={true}
                   value={password}
                   onChangeText={setPassword}
-                  />
-                  <Text style={incorrect.visibility? styles.incorrectText: {display:'none'}}>{incorrect.message}</Text>
-                  {/* <TouchableOpacity>
+                />
+                <Text style={incorrect.visibility ? styles.incorrectText : { display: 'none' }}>{incorrect.message}</Text>
+                {/* <TouchableOpacity>
                   <Text style={styles.forgotPasswordText}>Forgot password?</Text>
                   </TouchableOpacity> */}
 
-                  <TouchableOpacity style={styles.getSignInButton} onPress={handleSignIn}>
+                <TouchableOpacity style={styles.getSignInButton} onPress={handleSignIn}>
                   {
-                    isLoading?(
+                    isLoading ? (
                       <ActivityIndicator animating={true} color={MD2Colors.cyan700} />
-                    ):(
+                    ) : (
                       <Text style={styles.getStartedText}>Sign In</Text>
                     )
                   }
-                  </TouchableOpacity>
+                </TouchableOpacity>
 
-                  <View style={styles.signUpTextContainer}>
-                    <Text>Don't have an account? </Text>
-                    <TouchableOpacity onPress={() => props.navigation.navigate('SignUp')}>
-                        <Text style={styles.signUpText}>Sign Up</Text>
-                    </TouchableOpacity>
-                  </View>
+                <View style={styles.signUpTextContainer}>
+                  <Text>Don't have an account? </Text>
+                  <TouchableOpacity onPress={() => props.navigation.navigate('SignUp')}>
+                    <Text style={styles.signUpText}>Sign Up</Text>
+                  </TouchableOpacity>
                 </View>
               </View>
-            </ScrollView>
-            <Snackbar
-              visible={snackbar.visibility}
-              onDismiss={()=> setSnackbar(ex=>({
-                ...ex,
-                visibility: false
-              }))}
-              >
-              {snackbar.message}
-            </Snackbar>
-          </ImageBackground>
-        </View>
+            </View>
+          </ScrollView>
+          <Snackbar
+            visible={snackbar.visibility}
+            onDismiss={() => setSnackbar(ex => ({
+              ...ex,
+              visibility: false
+            }))}
+          >
+            {snackbar.message}
+          </Snackbar>
+        </ImageBackground>
+      </View>
     </SafeAreaView>
   );
 };
@@ -167,7 +168,7 @@ const styles = StyleSheet.create({
     width: 200,
     marginVertical: 20,
     resizeMode: 'center'
-},
+  },
   overlayContainer: {
     flex: 1,
     // justifyContent: 'center',
@@ -189,7 +190,7 @@ const styles = StyleSheet.create({
     shadowRadius: 3.84,
     elevation: 5,
     paddingHorizontal: 20,
-    paddingVertical:30
+    paddingVertical: 30
   },
   title: {
     fontSize: 24,
@@ -249,10 +250,10 @@ const styles = StyleSheet.create({
     width: 24,
   },
   incorrectText: {
-    color:"#e33", 
-    textAlign:'left', 
-    width: '100%', 
-    marginLeft:25,
+    color: "#e33",
+    textAlign: 'left',
+    width: '100%',
+    marginLeft: 25,
     display: 'flex'
   }
 });

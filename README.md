@@ -117,7 +117,7 @@ cd client
 # BASE_URL=your_server_url
 # Then run:
 npm install
-npm run dev
+npm run start
 ```
 
 ### 🧠 Disease Finder Setup (Flask + ML Model)
