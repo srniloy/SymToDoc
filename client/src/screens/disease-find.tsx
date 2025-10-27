@@ -52,7 +52,7 @@ const DiseaseResultCard: React.FC<DiseaseResultCardProps> = ({ disease, descript
         </View>
       </View>
       <Text style={styles.diseaseDescription}>{description}</Text>
-      <Text style={styles.diseaseSpecialization}>{"Visit to a "} <Text style={{fontWeight:'bold'}}>{specialization}</Text> {" to get treatment for this."}</Text>
+      <Text style={styles.diseaseSpecialization}>{"Visit to a "} <Text style={{ fontWeight: 'bold' }}>{specialization}</Text> {" to get treatment for this."}</Text>
     </View>
   );
 };
@@ -72,19 +72,19 @@ const SymptomInputScreen: React.FC = () => {
   const [results, setResults] = useState<Disease[] | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [showResults, setShowResults] = useState<boolean>(false);
-  
+
 
   useEffect(() => {
-      const getSymptoms = async ()=>{
-        const res:any = await GetSymptoms();
-        const ALL_SYMPTOMS = res.data.symptoms
-        const processedSymptoms = ALL_SYMPTOMS.map((item:any) => {return item.symptom});
-        const uniqueSymptoms = Array.from(new Set(processedSymptoms)) as string[];
-        setSymptoms(uniqueSymptoms)
-        setFilteredSymptoms(uniqueSymptoms)
-      }
-      getSymptoms()
-    }, []);
+    const getSymptoms = async () => {
+      const res: any = await GetSymptoms();
+      const ALL_SYMPTOMS = res.data.symptoms
+      const processedSymptoms = ALL_SYMPTOMS.map((item: any) => { return item.symptom });
+      const uniqueSymptoms = Array.from(new Set(processedSymptoms)) as string[];
+      setSymptoms(uniqueSymptoms)
+      setFilteredSymptoms(uniqueSymptoms)
+    }
+    getSymptoms()
+  }, []);
 
   useEffect(() => {
     if (searchQuery === '') {
@@ -119,7 +119,7 @@ const SymptomInputScreen: React.FC = () => {
     setResults(res.data.diseases)
     setIsLoading(false);
     setShowResults(true);
-    
+
   };
 
   const resetForm = (): void => {
@@ -137,9 +137,9 @@ const SymptomInputScreen: React.FC = () => {
         {!showResults ? (
           <>
             <Text style={styles.title}>What symptoms are you experiencing?</Text>
-            
+
             <Text style={styles.subtitle}>Select all that apply</Text>
-            
+
             {/* Search input */}
             <View style={styles.searchContainer}>
               <TextInput
@@ -150,24 +150,24 @@ const SymptomInputScreen: React.FC = () => {
                 onChangeText={setSearchQuery}
               />
             </View>
-            
+
             {/* Selected symptoms chips */}
             {selectedSymptoms.length > 0 && (
               <View style={styles.selectedContainer}>
                 <Text style={styles.selectedTitle}>Selected:</Text>
-                <ScrollView 
-                  horizontal 
+                <ScrollView
+                  horizontal
                   showsHorizontalScrollIndicator={false}
                   contentContainerStyle={styles.chipsContainer}
                 >
                   {selectedSymptoms.map(symptom => (
-                    <TouchableOpacity 
-                      key={symptom} 
+                    <TouchableOpacity
+                      key={symptom}
                       style={styles.symptomChip}
                       onPress={() => removeSymptom(symptom)}
                     >
                       <Text style={styles.symptomChipText}>{symptom.split('_')
-                        .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
+                        .map((word: String) => word.charAt(0).toUpperCase() + word.slice(1))
                         .join(' ')}</Text>
                       <Text style={styles.symptomChipRemove}>×</Text>
                     </TouchableOpacity>
@@ -176,46 +176,46 @@ const SymptomInputScreen: React.FC = () => {
               </View>
             )}
 
-            <View style={{display:'flex', flexDirection:'column', height: '100%'}}>
+            <View style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
               {/* Symptoms list */}
               <View style={styles.symptomsListContainer}>
                 {
-                  symptoms.length > 0? 
-                  <FlatList
-                    data={filteredSymptoms}
-                    keyExtractor={(item) => item}
-                    scrollEnabled={true}
-                    renderItem={({ item }) => (
-                      <TouchableOpacity
-                        onPress={() => toggleSymptom(item)}
-                        key={item}
-                        style={[
-                          styles.symptomItem,
-                          selectedSymptoms.includes(item) && styles.selectedSymptomItem
-                        ]}
-                      >
-                        <Text style={styles.symptonText}>{item.split('_')
-                          .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
-                          .join(' ')}</Text>
-                        {selectedSymptoms.includes(item) && (
-                          <View style={styles.selectedIndicator}>
-                            <Text style={styles.selectedIndicatorText}>✓</Text>
-                          </View>
-                        )}
-                      </TouchableOpacity>
-                    )}
-                    ListEmptyComponent={
-                      <View style={styles.emptyListContainer}>
-                        <Text style={styles.emptyListText}>No symptoms found matching "{searchQuery}"</Text>
-                      </View>
-                    }
-                    contentContainerStyle={styles.symptomsListContent}
-                  />:
-                  <ActivityIndicator animating={true} color={MD2Colors.cyan700} />
+                  symptoms.length > 0 ?
+                    <FlatList
+                      data={filteredSymptoms}
+                      keyExtractor={(item) => item}
+                      scrollEnabled={true}
+                      renderItem={({ item }) => (
+                        <TouchableOpacity
+                          onPress={() => toggleSymptom(item)}
+                          key={item}
+                          style={[
+                            styles.symptomItem,
+                            selectedSymptoms.includes(item) && styles.selectedSymptomItem
+                          ]}
+                        >
+                          <Text style={styles.symptonText}>{item.split('_')
+                            .map((word: String) => word.charAt(0).toUpperCase() + word.slice(1))
+                            .join(' ')}</Text>
+                          {selectedSymptoms.includes(item) && (
+                            <View style={styles.selectedIndicator}>
+                              <Text style={styles.selectedIndicatorText}>✓</Text>
+                            </View>
+                          )}
+                        </TouchableOpacity>
+                      )}
+                      ListEmptyComponent={
+                        <View style={styles.emptyListContainer}>
+                          <Text style={styles.emptyListText}>No symptoms found matching "{searchQuery}"</Text>
+                        </View>
+                      }
+                      contentContainerStyle={styles.symptomsListContent}
+                    /> :
+                    <ActivityIndicator animating={true} color={MD2Colors.cyan700} />
 
                 }
               </View>
-              
+
               {/* Submit button */}
               <TouchableOpacity
                 onPress={submitSymptoms}
@@ -234,7 +234,7 @@ const SymptomInputScreen: React.FC = () => {
                 )}
               </TouchableOpacity>
             </View>
-            
+
           </>
         ) : (
           <>
@@ -244,38 +244,40 @@ const SymptomInputScreen: React.FC = () => {
                 <Text style={styles.startOverButtonText}>Start Over</Text>
               </TouchableOpacity>
             </View>
-            
+
             <Text style={styles.resultsSubtitle}>
-              Based on: {selectedSymptoms.map((item:any) => {return item.split('_')
-                        .map((word:String) => word.charAt(0).toUpperCase() + word.slice(1))
-                        .join(' ')}).join(', ')}
+              Based on: {selectedSymptoms.map((item: any) => {
+                return item.split('_')
+                  .map((word: String) => word.charAt(0).toUpperCase() + word.slice(1))
+                  .join(' ')
+              }).join(', ')}
             </Text>
-            
+
             <View style={styles.resultsContainer}>
-  <FlatList
-    data={results}
-    keyExtractor={(item) => item.id.toString()}
-    renderItem={({ item }) => (
-      <DiseaseResultCard
-        disease={item.disease}
-        description={item.description}
-        weight={5-item.id}
-        specialization={item.specialization}
-      />
-    )}
-    ListEmptyComponent={
-      <View style={styles.emptyResultsContainer}>
-        <Text style={styles.emptyResultsText}>No matching conditions found</Text>
-      </View>
-    }
-    contentContainerStyle={styles.resultsContentContainer}
-  />
-</View>
-            
+              <FlatList
+                data={results}
+                keyExtractor={(item) => item.id.toString()}
+                renderItem={({ item }) => (
+                  <DiseaseResultCard
+                    disease={item.disease}
+                    description={item.description}
+                    weight={5 - item.id}
+                    specialization={item.specialization}
+                  />
+                )}
+                ListEmptyComponent={
+                  <View style={styles.emptyResultsContainer}>
+                    <Text style={styles.emptyResultsText}>No matching conditions found</Text>
+                  </View>
+                }
+                contentContainerStyle={styles.resultsContentContainer}
+              />
+            </View>
+
           </>
         )}
       </View>
-      <StatusBar  backgroundColor="#161622" style="light"/>
+      <StatusBar backgroundColor="#161622" style="light" />
     </KeyboardAvoidingView>
   );
 };
@@ -299,7 +301,7 @@ const styles = StyleSheet.create({
     color: '#94a3b8',
     textAlign: 'center',
   },
-  
+
   symptomsListContent: {
     paddingVertical: 8,
   },
@@ -315,6 +317,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#ffffff',
     paddingHorizontal: 16,
     paddingTop: 20,
+    marginTop: 20,
     paddingBottom: 40,
   },
   chipsContainer: {
@@ -403,7 +406,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallScreen ? 15 : 16,
     flex: 1,
   },
-  
+
   selectedIndicator: {
     backgroundColor: '#38bdf8',
     width: 22,
@@ -450,6 +453,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
+    marginTop: 20,
     marginBottom: 16,
   },
   resultsTitle: {
@@ -513,7 +517,7 @@ const styles = StyleSheet.create({
     fontSize: isSmallScreen ? 14 : 15,
     lineHeight: 20,
   },
-  diseaseSpecialization:{
+  diseaseSpecialization: {
     color: '#475569',
     fontSize: isSmallScreen ? 14 : 15,
     lineHeight: 20,
